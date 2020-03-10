@@ -1,0 +1,57 @@
+version: "3.7"
+services:
+  hub:
+    container_name: hub
+    image: selenium/hub:latest
+    ports:
+      - "4444:4444"
+  chrome:
+    container_name: chrome
+    image: selenium/node-chrome:latest
+    volumes:
+      - /dev/shm:/dev/shm
+    depends_on:
+      - hub
+    environment:
+      HUB_HOST: hub
+  firefox:
+    container_name: firefox
+    image: selenium/node-firefox:latest
+    volumes:
+      - /dev/shm:/dev/shm
+    depends_on:
+      - hub
+    environment:
+      HUB_HOST: hub
+  chrome-debug:
+    container_name: chrome-debug
+    image: selenium/node-chrome-debug:latest
+    volumes:
+      - /dev/shm:/dev/shm
+    depends_on:
+      - hub
+    environment:
+      HUB_HOST: hub
+  firefox-debug:
+    container_name: firefox-debug
+    image: selenium/node-firefox-debug:latest
+    volumes:
+      - /dev/shm:/dev/shm
+    depends_on:
+      - hub
+    environment:
+      HUB_HOST: hub
+  wdio:
+    container_name: wdio
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - BROWSER
+      - HUB=hub
+    command: yarn wdio
+    restart: on-failure
+    depends_on:
+      - hub
+      - firefox
+      - chrome
